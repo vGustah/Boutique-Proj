@@ -1,13 +1,27 @@
 name: Discord Notification
 
 on:
-  - push
+  push:
+    branches:
+      - main
 
 jobs:
   discord:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Test Secret
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "Secret não está disponível!"
+            exit 1
+          else
+            echo "Secret acessível"
+          fi
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
       - name: Run Discord Webhook
         uses: Sniddl/discord-commits@v1.6
         with:
