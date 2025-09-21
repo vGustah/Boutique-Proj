@@ -11,14 +11,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test Secret
+      - name: Check if Secret exists
         run: |
           if [ -z "$DISCORD_WEBHOOK" ]; then
-            echo "Secret não está disponível!"
+            echo "Secret DISCORD_WEBHOOK não está disponível!"
             exit 1
           else
-            echo "Secret acessível"
+            echo "Secret DISCORD_WEBHOOK está acessível"
           fi
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Secret Length Debug
+        run: |
+          echo "Comprimento do Secret: ${#DISCORD_WEBHOOK}"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Partial URL Debug
+        run: |
+          echo "Webhook URL (parcial, seguro): ${DISCORD_WEBHOOK:0:20}..."
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+
+      - name: Test Discord via curl
+        run: |
+          echo "Tentando enviar mensagem de teste para Discord..."
+          curl -v -H "Content-Type: application/json" \
+               -d '{"content":"Mensagem de teste do workflow"}' $DISCORD_WEBHOOK
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
